@@ -5,7 +5,7 @@
         Plugin Name: FastPages
         Plugin URI: https://fastpages.io/
         Description: Integrate your FastPages-campaigns directly onto your WordPress-website!
-        Version: 1.0.0
+        Version: 1.1.0
         Author: FastPages
         Author URI: https://fastpages.io/
         
@@ -14,7 +14,7 @@
     if (!defined('ABSPATH')) exit;
 
     $config = [
-        'PLUGIN_VERSION' => '1.0.0',
+        'PLUGIN_VERSION' => '1.1.0',
         'API_ENDPOINT' => 'https://app.fastpages.io/api',
         'DATABASE_TABLE' => $wpdb->prefix . 'fastpages',
         'OPTION_NAMES' => [
@@ -64,10 +64,23 @@
                 $domains = $project->domains;
 
                 $request = wp_remote_get(
-                    'https://' . $domains[0]->domain . '/' . (isset($slugs[1]) ? $slugs[1] : '')
+                    'https://' . $domains[0]->domain . '/' . (isset($slugs[1]) ? $slugs[1] : ''), [
+                        'httpversion' => '2.0',
+                        'user-agent' => 'WordPress/FastPages-Plugin; ' . home_url(),
+                        'timeout' => 10,
+                        'sslverify' => true,
+                        'headers' => [
+                            'Plugin-Version' => $config['PLUGIN_VERSION']
+                        ]
+                    ]
                 );
-
-                echo wp_remote_retrieve_body($request);
+                
+                $response = fp_response(
+                    wp_remote_retrieve_body($request),
+                    $slug
+                );
+                
+                echo $response;
 
             }
             else {
@@ -132,6 +145,12 @@
     function fp_enable() {
 
         global $wpdb;
+        
+        if (!class_exists('DOMDocument')) {
+            
+            exit('Whoops! The DOMDocument PHP-extension doesn\'t seem to be enabled or either installed, please contact your hostmaster.');
+            
+        }
 
         $database = str_replace(
             [
@@ -159,6 +178,39 @@
 
         $wpdb->query('DROP TABLE ' . $wpdb->prefix . 'fastpages');
 
+    }
+    
+    function fp_response($body, $slug) {
+        
+        $dom = new DOMDocument();
+        
+        libxml_use_internal_errors(true);
+        
+        $dom->loadHTML($body);
+        
+        $finder = new DomXPath($dom);
+        $menu_items = $finder->query('//*[contains(@class, "menu-items")]');
+        
+        foreach ($menu_items as $menu_item) {
+            
+            $links = $menu_item->getElementsByTagName('a');
+            
+            foreach ($links as $link) {
+                
+                $href = $link->getAttribute('href');
+                
+                $link->setAttribute('target', '_self');
+                
+                $link->setAttribute('href', 
+                    get_site_url() . '/' . $slug . $href
+                );
+                
+            }
+            
+        }
+        
+        return $dom->saveHTML();
+        
     }
 
 ?>
