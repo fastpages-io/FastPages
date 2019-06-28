@@ -5,7 +5,7 @@
         Plugin Name: FastPages
         Plugin URI: https://fastpages.io/
         Description: Integrate your FastPages-campaigns directly onto your WordPress-website!
-        Version: 1.2.0
+        Version: 1.2.1
         Author: FastPages
         Author URI: https://fastpages.io/
         
@@ -14,7 +14,7 @@
     if (!defined('ABSPATH')) exit;
 
     $config = [
-        'PLUGIN_VERSION' => '1.2.0',
+        'PLUGIN_VERSION' => '1.2.1',
         'API_ENDPOINT' => 'https://app.fastpages.io/api',
         'DATABASE_TABLE' => $wpdb->prefix . 'fastpages',
         'OPTION_NAMES' => [
