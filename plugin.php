@@ -75,12 +75,10 @@
                     ]
                 );
                 
-                $response = fp_response(
+                fp_response(
                     wp_remote_retrieve_body($request),
                     $slug
                 );
-                
-                echo $response;
 
             }
             else {
@@ -209,7 +207,11 @@
             
         }
         
-        return $dom->saveHTML();
+        header('Content-type: text/html; charset=utf-8');
+        
+        echo $dom->saveHTML();
+        
+        exit;
         
     }
 
