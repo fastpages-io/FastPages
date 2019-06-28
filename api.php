@@ -27,13 +27,15 @@
                 'Plugin: FastPages ' . $this->config['PLUGIN_VERSION']
             ];
 
-            if (strpos($this->secured, $endpoint) !== false)
+            if ($this->secure($endpoint)) {
 
                 $token = get_option(
                     $this->config['OPTION_NAMES']['TOKEN']
                 );
 
                 $headers[] = 'x-api-key: ' . $token;
+                
+            }
             
             curl_setopt($ch, CURLOPT_URL, $api . $endpoint);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -62,6 +64,23 @@
 
             return $response;
 
+        }
+        
+        private function secure($endpoint) {
+            
+            foreach ($this->secured as $name) {
+                
+                if (stripos($endpoint, $name) !== false) {
+                    
+                    return true;
+                    
+                }
+                
+            }
+            
+            
+            return false;
+            
         }
 
         public function authenticate($email, $password) {
