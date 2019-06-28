@@ -180,6 +180,8 @@
     
     function fp_response($body, $slug) {
         
+        global $config;
+        
         $dom = new DOMDocument();
         
         libxml_use_internal_errors(true);
@@ -208,6 +210,7 @@
         }
         
         header('Content-type: text/html; charset=utf-8');
+        header('X-Plugin-Version: FastPages/' . $config['PLUGIN_VERSION']);
         
         echo $dom->saveHTML();
         
