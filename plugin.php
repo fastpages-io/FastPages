@@ -178,17 +178,21 @@
 
     }
     
-    function fp_response($body, $slug) {
+    function fp_parse($body, $slug) {
         
         $dom = new DOMDocument();
+        
+        $replace = [
+            '/bundle.client.js' => 'https://x.project.fastpages.io/bundle.client.js'
+        ];
         
         libxml_use_internal_errors(true);
         
         $dom->loadHTML($body);
         
         $finder = new DomXPath($dom);
-        $menu_items = $finder->query('//*[contains(@class, "menu-items")]');
         
+        $menu_items = $finder->query('//*[contains(@class, "menu-items")]');
         foreach ($menu_items as $menu_item) {
             
             $links = $menu_item->getElementsByTagName('a');
@@ -207,9 +211,36 @@
             
         }
         
+        $script_items = $finder->query('//script');
+        foreach ($script_items as $script_item) {
+            
+            $src = $script_item->getAttribute('src');
+            
+            if (strlen($src) !== 0 && $src !== null) {
+                
+                if (array_key_exists($src, $replace)) {
+                    
+                    $script_item->setAttribute('src', $replace[$src]);
+                    
+                }
+                
+            }
+            
+        }
+        
+        return $dom->saveHTML();
+        
+    }
+    
+    function fp_response($body, $slug) {
+        
         header('Content-type: text/html; charset=utf-8');
         
-        echo $dom->saveHTML();
+        $body = fp_parse($body, $slug);
+        
+        echo html_entity_decode(
+            $body
+        );
         
         exit;
         
