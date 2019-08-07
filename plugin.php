@@ -180,6 +180,8 @@
     
     function fp_parse($body, $slug) {
         
+        global $config;
+        
         $dom = new DOMDocument();
         
         $replace = [
@@ -235,6 +237,7 @@
     function fp_response($body, $slug) {
         
         header('Content-type: text/html; charset=utf-8');
+        header('X-Plugin-Version: FastPages/' . $config['PLUGIN_VERSION']);
         
         $body = fp_parse($body, $slug);
         
