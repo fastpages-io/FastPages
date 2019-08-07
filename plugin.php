@@ -5,7 +5,7 @@
         Plugin Name: FastPages
         Plugin URI: https://fastpages.io/
         Description: Integrate your FastPages-campaigns directly onto your WordPress-website!
-        Version: 1.2.1
+        Version: 1.2.2
         Author: FastPages
         Author URI: https://fastpages.io/
         
@@ -180,8 +180,6 @@
     
     function fp_parse($body, $slug) {
         
-        global $config;
-        
         $dom = new DOMDocument();
         
         $replace = [
@@ -235,6 +233,8 @@
     }
     
     function fp_response($body, $slug) {
+        
+        global $config;
         
         header('Content-type: text/html; charset=utf-8');
         header('X-Plugin-Version: FastPages/' . $config['PLUGIN_VERSION']);
